@@ -15,7 +15,7 @@ namespace SeidoDbWebApiConsumer
         {
             //var service = new SeidoDbHttpService(new Uri("https://localhost:5001"));
             //var service = new SeidoDbHttpService(new Uri("http://localhost:5000"));
-            var service = new SeidoDbHttpService(new Uri(" https://ws7.seido.se"));
+            var service = new SeidoDbHttpService(new Uri(" https://ws8.seido.se"));
        
 
             QueryDatabaseAsync(service).Wait();
