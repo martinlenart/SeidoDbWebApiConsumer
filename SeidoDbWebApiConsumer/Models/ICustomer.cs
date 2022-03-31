@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SeidoDbWebApiConsumer.Models
 {
-    public interface ICustomer : IEquatable<ICustomer>
+    public interface ICustomer : IEquatable<ICustomer>, IRandomInit
     {
         public Guid CustomerID { get; }
         public string FirstName { get; set; }

@@ -7,15 +7,24 @@ namespace SeidoDbWebApiConsumer.Models
 {
     public class Order : IOrder
     {
+        #region for EFC CodeFirst
         [Key]
         [Column("OrderID")]
         public Guid OrderID { get; set; }
-
+        
+        [ForeignKey(nameof(CustomerID))]
         [Column("CustomerID")]
         public Guid CustomerID { get; set; }
 
+        //public virtual Customer Customer { get; set; }  //removed to avoid recursion in WebApi Json serialization
+        #endregion
+
         public int NrOfArticles { get; set; }
+
+        [Column(TypeName = "money")]
         public decimal Value { get; set; }
+
+        [Column(TypeName = "money")]
         public decimal Freight { get; set; }
         public decimal Total => Value + Freight;
         public decimal VAT => Total * 0.8M;
@@ -31,7 +40,9 @@ namespace SeidoDbWebApiConsumer.Models
         public override int GetHashCode() => OrderID.GetHashCode();
         #endregion
 
-        #region Implement IRandomInit
+        public override string ToString() => $"{OrderID}: Value: {Value:C2} OrderDate: {OrderDate:d} DeliverDate: {DeliveryDate:d} CustomerID: {CustomerID}";
+
+        #region Class Factory for creating an instance filled with Random data
         public void RandomInit()
         {
             var rnd = new Random();
@@ -56,17 +67,23 @@ namespace SeidoDbWebApiConsumer.Models
                 catch { }
             }
         }
+        public static class Factory
+        {
+            public static Order CreateRandom(Guid CustomerID)
+            {
+                var p = new Order();
+                p.CustomerID = CustomerID;
+                p.OrderID = Guid.NewGuid();
+
+                p.RandomInit();
+                return p;
+            }
+        }
         #endregion
 
-        public override string ToString() => $"{OrderID}: Value: {Value:C2} OrderDate: {OrderDate:d} DeliverDate: {DeliveryDate:d} CustomerID: {CustomerID}";
+        public Order() {}
 
-        public Order(Guid CustomerID)
-        {
-            this.OrderID = Guid.NewGuid();
-            this.CustomerID = CustomerID;
-
-            RandomInit();
-        }
+        //Copy Constructor
         public Order(IOrder src)
         {
             NrOfArticles = src.NrOfArticles;

@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace SeidoDbWebApiConsumer.Models
 {
     public class Customer : ICustomer
     {
+        #region for EFC CodeFirst
         [Key]
         [Column("CustomerID")]
         public Guid CustomerID { get; set; }
+
+        public virtual List<Order> Orders { get; set; } = new List<Order>();
+        #endregion
 
         [Column(TypeName = "nvarchar (200)")]
         public string FirstName { get; set; }
@@ -29,20 +34,19 @@ namespace SeidoDbWebApiConsumer.Models
         public string Country { get; set; }
  
         public DateTime BirthDate { get; set; }
-        public virtual List<Order> Orders { get; set; } = new List<Order>();
+
+        public decimal OrderValue { get => Orders.Sum(o => o.Value); }
+        public override string ToString() => $"{CustomerID}: {FirstName} {LastName}, {Adress}, {ZipCode} {City}, {Country}";
 
         #region Implement IEquatable
-        public bool Equals(ICustomer other) => other != null ? CustomerID == other.CustomerID : false;
+        public bool Equals(ICustomer other) => CustomerID == other?.CustomerID;
 
         //Implement due to legacy reasons
-        public override bool Equals(object obj) => Equals(obj as Customer);
+        public override bool Equals(object obj) => Equals(obj as ICustomer);
         public override int GetHashCode() => CustomerID.GetHashCode();
         #endregion
 
-        public static bool operator == (Customer c1, Customer c2) => c1.Equals(c2);
-        public static bool operator != (Customer c1, Customer c2) => !c1.Equals(c2);
-
-        #region Implement IRandomInit
+        #region Class Factory for creating an instance filled with Random data
         public void RandomInit()
         {
             string[] _firstnames = "Fred John Mary Jane Oliver Marie Per Thomas Ann Susanne".Split(' ');
@@ -84,15 +88,19 @@ namespace SeidoDbWebApiConsumer.Models
                 catch { }
             }
         }
+        public static class Factory
+        {
+            public static Customer CreateRandom()
+            {
+                var p = new Customer();
+                p.CustomerID = Guid.NewGuid();
+                p.RandomInit();
+                return p;
+            }
+        }
         #endregion
 
-        public override string ToString() => $"{CustomerID}: {FirstName} {LastName}, {Adress}, {ZipCode} {City}, {Country}";
-
-        public Customer()
-        {
-            this.CustomerID = Guid.NewGuid();
-            RandomInit();
-        }
+        public Customer() {}
 
         //Copy Constructor
         public Customer(ICustomer src)

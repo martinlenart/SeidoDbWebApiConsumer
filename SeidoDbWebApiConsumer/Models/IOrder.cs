@@ -2,7 +2,7 @@
 
 namespace SeidoDbWebApiConsumer.Models
 {
-    public interface IOrder : IEquatable<IOrder>
+    public interface IOrder : IEquatable<IOrder>, IRandomInit
     {
         public Guid OrderID { get; }
         public Guid CustomerID { get; }

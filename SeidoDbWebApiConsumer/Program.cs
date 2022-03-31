@@ -13,11 +13,10 @@ namespace SeidoDbWebApiConsumer
     {
         static void Main(string[] args)
         {
-            //var service = new SeidoDbHttpService(new Uri("https://localhost:5001"));
+            var service = new SeidoDbHttpService(new Uri("https://localhost:5001"));
             //var service = new SeidoDbHttpService(new Uri("http://localhost:5000"));
-            var service = new SeidoDbHttpService(new Uri(" https://ws8.seido.se"));
+            //var service = new SeidoDbHttpService(new Uri("https://ws6.seido.se"));
        
-
             QueryDatabaseAsync(service).Wait();
         }
 
@@ -39,13 +38,13 @@ namespace SeidoDbWebApiConsumer
             Console.WriteLine(cust1);
 
             Console.WriteLine("\nTesting CreateCustomerAsync()");
-            Customer NewCust1 = new Customer();
+            Customer NewCust1 = Customer.Factory.CreateRandom();
             var NewCust2 = await service.CreateCustomerAsync(NewCust1);
             Console.WriteLine("Created Customer:");
             Console.WriteLine(NewCust1);
 
             var NewCust3 = await service.GetCustomerAsync(NewCust2.CustomerID);
-            if(NewCust1 == (Customer) NewCust2 && NewCust1 == (Customer) NewCust3)
+            if(NewCust1.Equals(NewCust2) && NewCust1.Equals(NewCust3))
                 Console.WriteLine("Readback customer Equal");
              else
                 Console.WriteLine("ERROR: Readback customer not equal");
@@ -54,13 +53,8 @@ namespace SeidoDbWebApiConsumer
             Console.WriteLine("\nTesting UpdateCustomerAsync()");
             NewCust1.FirstName += "_Updated";
             NewCust1.LastName += "_Updated";
-
             var UpdatedCustomer1 = await service.UpdateCustomerAsync(NewCust1);
-            Console.WriteLine($"Created Customer with updated names.\n{UpdatedCustomer1}");
-
-            var UpdatedCustomer2 = await service.GetCustomerAsync(UpdatedCustomer1.CustomerID);
-            Console.WriteLine($"Readback Customer with updated names.\n{UpdatedCustomer2}");
-
+            Console.WriteLine($"Customer with updated names.\n{UpdatedCustomer1}");
 
             Console.WriteLine("\nTesting DeleteCustomerAsync()");
             var DelCust1 = await service.DeleteCustomerAsync(NewCust1.CustomerID);
@@ -68,7 +62,7 @@ namespace SeidoDbWebApiConsumer
             Console.WriteLine($"Customer to delete.\n{NewCust1}");
             Console.WriteLine($"Deleted Customer.\n{DelCust1}");
 
-            if (DelCust1 != null && (Customer) DelCust1 == NewCust1)
+            if (DelCust1 != null && DelCust1.Equals(NewCust1))
                 Console.WriteLine("Customer Equal");
             else
                 Console.WriteLine("ERROR: Customers not equal");
